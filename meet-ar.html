@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet.AR - 虚拟现实新体验</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-cyan: #00f5ff;
+            --primary-purple: #a855f7;
+            --primary-pink: #ec4899;
+            --dark-bg: #0a0e27;
+            --dark-secondary: #1a1f3a;
+            --text-light: #ffffff;
+            --text-gray: #cbd5e1;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(10, 14, 39, 0.95), transparent);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 14, 39, 0.98);
+            box-shadow: 0 5px 30px rgba(0, 245, 255, 0.15);
+            padding: 1rem 4rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: var(--dark-bg);
+            box-shadow: 0 5px 25px rgba(0, 245, 255, 0.5);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-cyan);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--primary-purple));
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 语言切换 */
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            color: var(--dark-bg);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--primary-cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 真实背景图片 */
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            animation: heroZoomPan 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroZoomPan {
+            0% {
+                transform: scale(1) translateX(0);
+            }
+            100% {
+                transform: scale(1.1) translateX(-3%);
+            }
+        }
+
+        /* 遮罩层 */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg,
+                rgba(10, 14, 39, 0.8),
+                rgba(26, 31, 58, 0.7)
+            );
+            z-index: 1;
+        }
+
+        /* AR特效层 */
+        .ar-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ar-ring {
+            position: absolute;
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            border-radius: 50%;
+            animation: arRingPulse 5s ease-in-out infinite;
+        }
+
+        .ar-ring-1 {
+            width: 450px;
+            height: 450px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0s;
+        }
+
+        .ar-ring-2 {
+            width: 650px;
+            height: 650px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 1s;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .ar-ring-3 {
+            width: 850px;
+            height: 850px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 2s;
+            border-color: rgba(236, 72, 153, 0.25);
+        }
+
+        @keyframes arRingPulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translate(-50%, -50%) scale(1.15);
+            }
+        }
+
+        /* Hero内容 */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 1100px;
+            padding: 0 2rem;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg,
+                var(--primary-cyan) 0%,
+                #ffffff 50%,
+                var(--primary-purple) 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(0, 245, 255, 0.6);
+            animation: titleFadeIn 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes titleFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            margin-bottom: 3.5rem;
+            font-weight: 300;
+            line-height: 2;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
+            animation: subtitleFadeIn 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+        }
+
+        @keyframes subtitleFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: buttonsFadeIn 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+        }
+
+        @keyframes buttonsFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            padding: 1.3rem 3.5rem;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            color: var(--dark-bg);
+            box-shadow: 0 10px 50px rgba(0, 245, 255, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(0, 245, 255, 0.7);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        /* 体验展示区 - 重新设计 */
+        .experience-section {
+            padding: 10rem 4rem;
+            background: var(--dark-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .experience-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-cyan), var(--primary-purple), transparent);
+        }
+
+        .experience-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-purple), var(--primary-cyan), transparent);
+        }
+
+        /* 背景装饰 */
+        .experience-bg-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+        }
+
+        .decoration-circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            right: -200px;
+            opacity: 0.3;
+            filter: blur(100px);
+        }
+
+        .decoration-circle-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            left: -150px;
+            opacity: 0.2;
+            filter: blur(80px);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 1.3rem;
+            margin-bottom: 5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 体验卡片网格 - 重新设计 */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .experience-card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 450px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: var(--dark-bg);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .experience-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 245, 255, 0.4);
+            border-color: var(--primary-cyan);
+        }
+
+        .experience-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .experience-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .experience-card-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg,
+                rgba(0, 245, 255, 0.2),
+                rgba(168, 85, 247, 0.2)
+            );
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 1;
+        }
+
+        .experience-card:hover .experience-card-glow {
+            opacity: 1;
+        }
+
+        .experience-card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2.5rem;
+            background: linear-gradient(to top,
+                rgba(10, 14, 39, 0.98),
+                rgba(10, 14, 39, 0.8),
+                transparent
+            );
+            transform: translateY(60%);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+        }
+
+        .experience-card:hover .experience-card-content {
+            transform: translateY(0);
+        }
+
+        .experience-card-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            color: var(--dark-bg);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .experience-card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .experience-card-desc {
+            color: var(--text-gray);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* 特色体验卡片 */
+        .experience-card.featured {
+            grid-column: span 2;
+            height: 550px;
+        }
+
+        .experience-card.featured .experience-card-content {
+            transform: translateY(0);
+            background: linear-gradient(to right,
+                rgba(10, 14, 39, 0.98),
+                rgba(10, 14, 39, 0.85),
+                transparent
+            );
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100%;
+            padding: 4rem;
+        }
+
+        .experience-card.featured .experience-card-title {
+            font-size: 2.5rem;
+        }
+
+        .experience-card.featured .experience-card-desc {
+            font-size: 1.2rem;
+            max-width: 600px;
+        }
+
+        /* AR标签 */
+        .ar-badge {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(0, 245, 255, 0.2);
+            border: 1px solid var(--primary-cyan);
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary-cyan);
+            backdrop-filter: blur(10px);
+            z-index: 3;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(0, 245, 255, 0.6);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-bg);
+            padding: 5rem 4rem;
+            border-top: 1px solid rgba(0, 245, 255, 0.1);
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-cyan), var(--primary-purple), transparent);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .footer-logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--dark-bg);
+        }
+
+        .footer-logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-contact {
+            text-align: center;
+        }
+
+        .footer-contact-title {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .footer-emails {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .footer-email {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            background: rgba(0, 245, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .footer-email:hover {
+            background: rgba(0, 245, 255, 0.15);
+            border-color: var(--primary-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .footer-copyright {
+            text-align: right;
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .experience-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .experience-card.featured {
+                grid-column: span 1;
+                height: 450px;
+            }
+
+            .experience-card.featured .experience-card-content {
+                transform: translateY(60%);
+            }
+
+            .experience-card.featured:hover .experience-card-content {
+                transform: translateY(0);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
+            }
+
+            .footer-logo {
+                justify-content: center;
+            }
+
+            .footer-copyright {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 2rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-title {
+                font-size: 3.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .experience-section {
+                padding: 6rem 2rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .experience-card {
+                height: 400px;
+            }
+
+            .footer {
+                padding: 3rem 2rem;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary-cyan), var(--primary-purple));
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--primary-purple), var(--primary-cyan));
+        }
+
+        /* 移动端菜单 */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 1.5rem;
+                right: 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background: rgba(10, 14, 39, 0.98);
+                padding: 2rem;
+                border-radius: 15px;
+                margin-top: 1rem;
+            }
+        }
+
+        /* 加载动画 */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            color: var(--dark-bg);
+            animation: loaderPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 60px rgba(0, 245, 255, 0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面加载器 -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-icon">AR</div>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="logo-container">
+            <div class="logo-icon">AR</div>
+            <div class="logo-text">Meet.AR</div>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        <div class="nav-links" id="navLinks">
+            <a href="#" data-i18n="nav.home">首页</a>
+            <a href="#experience" data-i18n="nav.experience">体验</a>
+            <a href="#contact" data-i18n="nav.contact">联系</a>
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="zh">中文</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <img src="https://images.unsplash.com/photo-1617802690992-15d93263d3a9?w=1920&q=80" 
+                 alt="AR Virtual Reality Experience" 
+                 loading="eager">
+        </div>
+        
+        <div class="hero-overlay"></div>
+
+        <!-- AR特效层 -->
+        <div class="ar-effects">
+            <div class="ar-ring ar-ring-1"></div>
+            <div class="ar-ring ar-ring-2"></div>
+            <div class="ar-ring ar-ring-3"></div>
+        </div>
+
+        <div class="hero-content">
+            <h1 class="hero-title" data-i18n="hero.title">开启AR新视界</h1>
+            <p class="hero-subtitle" data-i18n="hero.subtitle">
+                连接现实与虚拟，创造无限可能<br>
+                与全球用户一起探索增强现实的魅力
+            </p>
+            <div class="cta-buttons">
+                <a href="#experience" class="btn btn-primary" data-i18n="hero.cta.start">
+                    <span>🚀</span> 开始体验
+                </a>
+                <a href="#contact" class="btn btn-secondary" data-i18n="hero.cta.contact">
+                    <span>✉️</span> 联系我们
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 体验展示区 -->
+    <section class="experience-section" id="experience">
+        <!-- 背景装饰 -->
+        <div class="experience-bg-decoration">
+            <div class="decoration-circle decoration-circle-1"></div>
+            <div class="decoration-circle decoration-circle-2"></div>
+        </div>
+
+        <h2 class="section-title" data-i18n="experience.title">沉浸式体验</h2>
+        <p class="section-subtitle" data-i18n="experience.subtitle">跨越现实边界，探索无限可能</p>
+        
+        <div class="experience-grid">
+            <!-- 特色卡片 -->
+            <div class="experience-card featured">
+                <img src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=1400&q=80" 
+                     alt="AR Global Experience" 
+                     loading="lazy">
+                <div class="ar-badge" data-i18n="experience.badge.immersive">沉浸式体验</div>
+                <div class="experience-card-glow"></div>
+                <div class="experience-card-content">
+                    <div class="experience-card-badge" data-i18n="experience.global.badge">全球互联</div>
+                    <div class="experience-card-title" data-i18n="experience.global.title">连接全球AR爱好者</div>
+                    <div class="experience-card-desc" data-i18n="experience.global.desc">
+                        突破地域限制，与世界各地的AR爱好者实时互动。在虚拟空间中协作创作，分享创意，共同构建未来AR生态。
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 亚洲体验卡片 -->
+            <div class="experience-card">
+                <img src="https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800&q=80" 
+                     alt="Asian AR Experience" 
+                     loading="lazy">
+                <div class="ar-badge" data-i18n="experience.badge.explore">探索发现</div>
+                <div class="experience-card-glow"></div>
+                <div class="experience-card-content">
+                    <div class="experience-card-badge" data-i18n="experience.asian.badge">亚洲市场</div>
+                    <div class="experience-card-title" data-i18n="experience.asian.title">文化探索之旅</div>
+                    <div class="experience-card-desc" data-i18n="experience.asian.desc">
+                        通过AR技术探索城市，发现隐藏的文化故事，让历史与现代科技完美融合。
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 美洲体验卡片 -->
+            <div class="experience-card">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" 
+                     alt="American AR Experience" 
+                     loading="lazy">
+                <div class="ar-badge" data-i18n="experience.badge.create">创意无限</div>
+                <div class="experience-card-glow"></div>
+                <div class="experience-card-content">
+                    <div class="experience-card-badge" data-i18n="experience.american.badge">美洲创新</div>
+                    <div class="experience-card-title" data-i18n="experience.american.title">虚拟创作空间</div>
+                    <div class="experience-card-desc" data-i18n="experience.american.desc">
+                        在虚拟世界中创造、学习与协作，体验前沿AR技术带来的无限创意可能。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="footer-logo-icon">AR</div>
+                <div class="footer-logo-text">Meet.AR</div>
+            </div>
+            
+            <div class="footer-contact">
+                <div class="footer-contact-title" data-i18n="footer.contact.title">联系我们</div>
+                <div class="footer-emails">
+                    <a href="mailto:617120025@qq.com" class="footer-email">617120025@qq.com</a>
+                    <a href="mailto:loujiuxi@gmail.com" class="footer-email">loujiuxi@gmail.com</a>
+                </div>
+            </div>
+            
+            <div class="footer-copyright">
+                <p data-i18n="footer.copyright">© 2024 Meet.AR. 连接现实，创造未来</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 多语言配置
+        const translations = {
+            zh: {
+                'nav.home': '首页',
+                'nav.experience': '体验',
+                'nav.contact': '联系',
+                'hero.title': '开启AR新视界',
+                'hero.subtitle': '连接现实与虚拟，创造无限可能<br>与全球用户一起探索增强现实的魅力',
+                'hero.cta.start': '🚀 开始体验',
+                'hero.cta.contact': '✉️ 联系我们',
+                'experience.title': '沉浸式体验',
+                'experience.subtitle': '跨越现实边界，探索无限可能',
+                'experience.badge.immersive': '沉浸式体验',
+                'experience.badge.explore': '探索发现',
+                'experience.badge.create': '创意无限',
+                'experience.global.badge': '全球互联',
+                'experience.global.title': '连接全球AR爱好者',
+                'experience.global.desc': '突破地域限制，与世界各地的AR爱好者实时互动。在虚拟空间中协作创作，分享创意，共同构建未来AR生态。',
+                'experience.asian.badge': '亚洲市场',
+                'experience.asian.title': '文化探索之旅',
+                'experience.asian.desc': '通过AR技术探索城市，发现隐藏的文化故事，让历史与现代科技完美融合。',
+                'experience.american.badge': '美洲创新',
+                'experience.american.title': '虚拟创作空间',
+                'experience.american.desc': '在虚拟世界中创造、学习与协作，体验前沿AR技术带来的无限创意可能。',
+                'footer.contact.title': '联系我们',
+                'footer.copyright': '© 2024 Meet.AR. 连接现实，创造未来'
+            },
+            en: {
+                'nav.home': 'Home',
+                'nav.experience': 'Experience',
+                'nav.contact': 'Contact',
+                'hero.title': 'Open AR New Vision',
+                'hero.subtitle': 'Connect reality with virtual, create infinite possibilities<br>Explore the charm of augmented reality with global users',
+                'hero.cta.start': '🚀 Start Experience',
+                'hero.cta.contact': '✉️ Contact Us',
+                'experience.title': 'Immersive Experience',
+                'experience.subtitle': 'Cross the boundaries of reality, explore infinite possibilities',
+                'experience.badge.immersive': 'Immersive',
+                'experience.badge.explore': 'Explore',
+                'experience.badge.create': 'Create',
+                'experience.global.badge': 'Global Connection',
+                'experience.global.title': 'Connect AR Enthusiasts Worldwide',
+                'experience.global.desc': 'Break geographical limitations and interact with AR enthusiasts around the world in real-time. Collaborate, create, and build the future AR ecosystem together.',
+                'experience.asian.badge': 'Asian Market',
+                'experience.asian.title': 'Cultural Exploration Journey',
+                'experience.asian.desc': 'Explore cities through AR technology and discover hidden cultural stories, perfectly blending history with modern technology.',
+                'experience.american.badge': 'American Innovation',
+                'experience.american.title': 'Virtual Creation Space',
+                'experience.american.desc': 'Create, learn and collaborate in the virtual world, experiencing the infinite creative possibilities brought by cutting-edge AR technology.',
+                'footer.contact.title': 'Contact Us',
+                'footer.copyright': '© 2024 Meet.AR. Connect Reality, Create Future'
+            }
+        };
+
+        let currentLang = 'zh';
+
+        // 语言切换功能
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.innerHTML = translations[lang][key];
+                    }
+                }
+            });
+
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // 为语言切换按钮添加事件监听
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.getAttribute('data-lang');
+                switchLanguage(lang);
+            });
+        });
+
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 移动端菜单切换
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // 页面加载完成后隐藏加载器
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('pageLoader');
+                loader.classList.add('hidden');
+            }, 800);
+        });
+    </script>
+</body>
+</html>
